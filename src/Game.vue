@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { onUnmounted } from 'vue'
-import { getWordOfTheDay, allWords } from './words'
+import { getWordOfTheDay, allWords, checkWord } from './words'
 import Keyboard from './Keyboard.vue'
 import { LetterState } from './types'
+import SeoText from './SeoText.vue'
 
 // Get word of the day
-const answer = getWordOfTheDay()
+let answer = "";
+getWordOfTheDay().then((response:any) => {
+  answer = response
+})
+
 
 // Board state. Each tile is represented as { letter, state }
 const board = $ref(
@@ -73,25 +78,29 @@ function clearTile() {
 function completeRow() {
   if (currentRow.every((tile) => tile.letter)) {
     const guess = currentRow.map((tile) => tile.letter).join('')
-    if (!allWords.includes(guess) && guess !== answer) {
-      shake()
-      showMessage(`Not in word list`)
-      return
+      checkWord(guess).then((response:any) => {
+      if(response.code == 1){
+        
+      }else if(response.code == 2){
+        shake()
+        showMessage(`Not in word list`)
+        return
     }
+    })
 
     const answerLetters: (string | null)[] = answer.split('')
     // first pass: mark correct ones
     currentRow.forEach((tile, i) => {
-      if (answerLetters[i] === tile.letter) {
+      if (answerLetters[i] === tile.letter.toUpperCase()) {
         tile.state = letterStates[tile.letter] = LetterState.CORRECT
         answerLetters[i] = null
       }
     })
     // second pass: mark the present
     currentRow.forEach((tile) => {
-      if (!tile.state && answerLetters.includes(tile.letter)) {
+      if (!tile.state && answerLetters.includes(tile.letter.toUpperCase())) {
         tile.state = LetterState.PRESENT
-        answerLetters[answerLetters.indexOf(tile.letter)] = null
+        answerLetters[answerLetters.indexOf(tile.letter.toUpperCase())] = null
         if (!letterStates[tile.letter]) {
           letterStates[tile.letter] = LetterState.PRESENT
         }
@@ -101,8 +110,8 @@ function completeRow() {
     currentRow.forEach((tile) => {
       if (!tile.state) {
         tile.state = LetterState.ABSENT
-        if (!letterStates[tile.letter]) {
-          letterStates[tile.letter] = LetterState.ABSENT
+        if (!letterStates[tile.letter.toUpperCase()]) {
+          letterStates[tile.letter.toUpperCase()] = LetterState.ABSENT
         }
       }
     })
@@ -179,13 +188,8 @@ function genResultGrid() {
     </div>
   </Transition>
   <header>
-    <h1>VVORDLE</h1>
-    <a
-      id="source-link"
-      href="https://github.com/yyx990803/vue-wordle"
-      target="_blank"
-      >Source</a
-    >
+    <img src="img/logo-min.webp" alt="Logo wordle cat" title="logo wordle cat" style="width: 50px; height: 100%;">
+    <h1>wordlecatala</h1>
   </header>
   <div id="board">
     <div

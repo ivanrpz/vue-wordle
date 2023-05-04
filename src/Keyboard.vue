@@ -11,7 +11,7 @@ defineEmits<{
 
 const rows = [
   'qwertyuiop'.split(''),
-  'asdfghjkl'.split(''),
+  'asdfghjklç'.split(''),
   ['Enter', ...'zxcvbnm'.split(''), 'Backspace']
 ]
 </script>
@@ -19,7 +19,6 @@ const rows = [
 <template>
   <div id="keyboard">
     <div class="row" v-for="(row, i) in rows">
-      <div class="spacer" v-if="i === 1"></div>
       <button
         v-for="key in row"
         :class="[key.length > 1 && 'big', letterStates[key]]"
@@ -39,7 +38,6 @@ const rows = [
           ></path>
         </svg>
       </button>
-      <div class="spacer" v-if="i === 1"></div>
     </div>
   </div>
 </template>
